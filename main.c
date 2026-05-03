@@ -31,13 +31,14 @@ typedef struct {
     int max_in_word;
 } CharInfo;
 
-WordAccuracy get_accuracy(char *word) {
+// returns true for success and vice versa, and fills *accuracy buffer
+bool get_accuracy(char *word, WordAccuracy *buf) {
     printf(" > %s\n", word);
     static char char_accs[WORD_LENGTH + 1] = {0};
     for (int c = 0; read(STDIN_FILENO, &char_accs[c], 1) > 0 && c < WORD_LENGTH; c++) {
         if (char_accs[c] != '\n') continue;
         printf("%d characters required\n", WORD_LENGTH);
-        exit(-1);
+        return false;
     }
     WordAccuracy ret = {0};
     for (int i = 0; i < WORD_LENGTH; i++) {
@@ -53,11 +54,11 @@ WordAccuracy get_accuracy(char *word) {
                 break;
             default:
                 printf("invalid input (%d)\n", char_accs[i]);
-                exit(-1);
-                break;
+                return false;
         }
     }
-    return ret;
+    *buf = ret;
+    return true;
 }
 
 static char *get_words(size_t *words_len_buf) {
@@ -133,8 +134,8 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
     //  - Instead of using the first legal word, it should get all words and select the one with the most even split
     //  - Probably not necessary, but for efficiency, illegal words should be completely removed from the temp dict to not be checked
     //      in future guesses
-
-    WordAccuracy accuracy = get_accuracy(guessed);
+    WordAccuracy accuracy = {0};
+    if (!get_accuracy(guessed, &accuracy)) return NULL;
     bool correct = true;
 
     // this is stupid and kinda inefficient but whatever
@@ -173,7 +174,10 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
             char_info[guessed[c]-'a'].max_in_word = -1;
     }
     putchar('\n');
-    if (correct) return NULL;
+    if (correct) {
+        printf("it did it, lesgo\n");
+        return NULL;
+    }
     return words;
 }
 
@@ -194,13 +198,9 @@ int main(void) {
            "Please enter it as a continuous string of numbers for each letter, eg. \"12010\", then press enter\n");
     for (size_t i = 0; i < NUM_GUESSES; i++) {
         words = guess(words, words_len, char_info);
-        if (words == NULL) {
-            printf("It did it lesgo\n");
-            break;
-        }
+        if (words == NULL) break;
     }
-    if (words != NULL)
-        printf("it failed :(\n");
+    if (words != NULL) printf("it failed :(\n");
     free(start_words);
     return 0;
 }
