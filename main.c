@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <stddef.h>
 
 static const char *correct = "pasta"; // hardcoded for now
@@ -70,8 +71,12 @@ bool loc_in_locs(int *locs, int idx) {
 
 WordAccuracy get_accuracy(char *word) {
     printf(" > %s\n", word);
-    char char_accs[WORD_LENGTH] = {0};
-    scanf("%5s", char_accs);
+    static char char_accs[WORD_LENGTH + 1] = {0};
+    for (int c = 0; read(STDIN_FILENO, &char_accs[c], 1) > 0 && c < WORD_LENGTH; c++) {
+        if (char_accs[c] != '\n') continue;
+        printf("%d characters required\n", WORD_LENGTH);
+        exit(-1);
+    }
     WordAccuracy ret = {0};
     for (int i = 0; i < WORD_LENGTH; i++) {
         switch (char_accs[i]) {
