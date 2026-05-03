@@ -107,13 +107,11 @@ static bool word_allowed(char *guessed, CharInfo *char_info) {
         int times_needed = char_info[i].min_in_word;
         int times_max    = char_info[i].max_in_word;
         if (times_found < times_needed || (times_found > times_max && times_max > -1)) return false;
-        // check 2 (this is "unnecessarily" very nested but its for readability)
-        for (int j = 0; j < WORD_LENGTH; j++) { // for each bitmap val...
-            // if it's required to be in a specific spot...
-            if (char_info[i].confirmed_spots & (1 << j)) {
-                // make sure its actually in that spot.
-                if (guessed[j] != (i + 'a')) return false;
-            }
+        // check 2
+        for (int j = 0; j < WORD_LENGTH; j++) {
+            bool required = char_info[i].confirmed_spots & (1 << j);
+            bool is_there = guessed[j] == (i + 'a');
+            if (required && !is_there) return false;
         }
     }
     return true;
