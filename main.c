@@ -170,8 +170,7 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
         if (char_info[guessed[c]-'a'].max_in_word == count_char_in_str(guessed, guessed[c]))
             char_info[guessed[c]-'a'].max_in_word = -1;
     }
-
-    puts("");
+    putchar('\n');
     if (correct) return NULL;
     return words;
 }
