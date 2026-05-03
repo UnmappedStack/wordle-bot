@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stddef.h>
@@ -31,41 +30,6 @@ typedef struct {
     int num_in_word;         // number of times it is guaranteed to be in the word
     int max_in_word;
 } CharInfo;
-
-// thanks stackoverflow, im still of the strong belief this should be in the libc
-char* to_bin_str(int n) {
-  int num_bits = sizeof(int) * 8;
-  char *string = malloc(num_bits + 1);
-  if (!string) {
-    return NULL;
-  }
-  for (int i = num_bits - 1; i >= 0; i--) {
-    string[i] = (n & 1) + '0';
-    n >>= 1;
-  }
-  string[num_bits] = '\0';
-  return string;
-}
-
-// returns a buffer of max strlen(s) elements which must be freed, terminated by -1
-int *find_chars_in_str(const char *s, char c) {
-    int len = strlen(s);
-    int *ret = (int*) malloc((strlen(s)+1) * sizeof(int));
-    int at = 0;
-    for (int i = 0; i < len; i++) {
-        if (s[i] != c) continue;
-        ret[at++] = i;
-    }
-    ret[at] = -1;
-    return ret;
-}
-
-bool loc_in_locs(int *locs, int idx) {
-    for (int loc = 0; locs[loc] != -1; loc++) {
-        if (locs[loc] == idx) return true;
-    }
-    return false;
-}
 
 WordAccuracy get_accuracy(char *word) {
     printf(" > %s\n", word);
