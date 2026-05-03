@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include <stddef.h>
 
-static const char *correct = "pasta"; // hardcoded for now
-
 #define HERE(n) (printf("HERE (%d)\n", n))
 #define WORD_LENGTH 5
 #define NUM_GUESSES 6
