@@ -10,10 +10,10 @@
 #define WORD_LENGTH 5
 #define NUM_GUESSES 6
 
-#define RST "\e[0m"
-#define RED "\e[0;31m"
-#define GRN "\e[0;32m"
-#define YLW "\e[0;33m"
+#define RST "\x1b[0m"
+#define RED "\x1b[0;31m"
+#define GRN "\x1b[0;32m"
+#define YLW "\x1b[0;33m"
 
 
 typedef enum {
