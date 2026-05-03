@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
     uint8_t allowed_spots;   // bitmap of indices of the word it is legal for it to be in (0=not allowed, 1=allowed)
     uint8_t confirmed_spots; // bitmap of indices where it is confirmed to be in that location for sure
-    int num_in_word;         // number of times it is guaranteed to be in the word
+    int min_in_word;         // number of times it is guaranteed to be in the word
     int max_in_word;
 } CharInfo;
 
@@ -104,7 +104,7 @@ static bool word_allowed(char *guessed, CharInfo *char_info) {
     for (size_t i = 0; i < 26; i++) {
         // check 1
         int times_found  = count_char_in_str(guessed, i + 'a');
-        int times_needed = char_info[i].num_in_word;
+        int times_needed = char_info[i].min_in_word;
         int times_max    = char_info[i].max_in_word;
         if (times_found < times_needed || (times_found > times_max && times_max > -1)) return false;
         // check 2 (this is "unnecessarily" very nested but its for readability)
@@ -142,7 +142,7 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
     // this is stupid and kinda inefficient but whatever
     for (size_t c = 0; c < WORD_LENGTH; c++) {
         char_info[guessed[c]-'a'].max_in_word = count_char_in_str(guessed, guessed[c]);
-        char_info[guessed[c]-'a'].num_in_word = 0;
+        char_info[guessed[c]-'a'].min_in_word = 0;
     }
 
     for (size_t c = 0; c < WORD_LENGTH; c++) {
@@ -150,7 +150,7 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
         if (accuracy.accs[c] == CORRECT) {
             printf(GRN);
             char_info[idx].confirmed_spots |= 1 << c;
-            char_info[guessed[c]-'a'].num_in_word++;
+            char_info[guessed[c]-'a'].min_in_word++;
         } else if (accuracy.accs[c] == INCORRECT) {
             printf(RED);
             correct = false;
@@ -160,7 +160,7 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
             printf(YLW);
             correct = false;
             char_info[idx].allowed_spots &= ~(1 << c);
-            char_info[guessed[c]-'a'].num_in_word++;
+            char_info[guessed[c]-'a'].min_in_word++;
         }
         printf("%c" RST, guessed[c]);
     }
