@@ -145,20 +145,24 @@ static char *guess(char *words, size_t words_len, CharInfo *char_info) {
 
     for (size_t c = 0; c < WORD_LENGTH; c++) {
         size_t idx = guessed[c] - 'a';
-        if (accuracy.accs[c] == CORRECT) {
+        switch (accuracy.accs[c]) {
+        case CORRECT:
             printf(GRN);
             char_info[idx].confirmed_spots |= 1 << c;
             char_info[guessed[c]-'a'].min_in_word++;
-        } else if (accuracy.accs[c] == INCORRECT) {
+            break;
+        case INCORRECT:
             printf(RED);
             correct = false;
             char_info[idx].allowed_spots &= ~(1 << c);
             char_info[idx].max_in_word--;
-        } else { // LOCATION
+            break;
+        case LOCATION:
             printf(YLW);
             correct = false;
             char_info[idx].allowed_spots &= ~(1 << c);
             char_info[guessed[c]-'a'].min_in_word++;
+            break;
         }
         printf("%c" RST, guessed[c]);
     }
